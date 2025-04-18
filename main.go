@@ -25,7 +25,8 @@ func main() {
 
 	//setup the api routes
 	r.HandleFunc("/api/login/new", api.NewLogin).Methods("POST")
-
+	r.HandleFunc("/api/login/suspicious", api.GetSuspiciousLogins).Methods("GET")
+	
 	//start the server
 	http.ListenAndServe(":3000", r)
 }

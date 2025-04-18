@@ -1,10 +1,14 @@
 package auth
 
 import (
+	"context"
 	"net/http"
 )
 
 const apiKeyHeader string = "X-API-Key";
+
+type contextKey string
+const tennantIDHeader contextKey = "Tennant-ID"
 
 // Ensure a request is from an authorized tennant 
 func Verify(next http.Handler) http.Handler {
@@ -25,7 +29,19 @@ func Verify(next http.Handler) http.Handler {
 			return
 		}
 
+		//Add the tennant id we "grabbed" from the API key to the request context
+		ctx := context.WithValue(r.Context(), tennantIDHeader, apiKey)
+		r = r.WithContext(ctx)
+
 		//Move on to other middleware etc
 		next.ServeHTTP(w, r)
 	})
+}
+
+// GetTenantID extracts the tenant ID from the request context
+func GetTenantID(r *http.Request) string {
+    if tenantID, ok := r.Context().Value(tennantIDHeader).(string); ok {
+        return tenantID
+    }
+    return ""
 }
