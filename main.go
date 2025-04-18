@@ -1,6 +1,7 @@
 package main
 
 import (
+	"insights/api"
 	"insights/auth"
 	"net/http"
 
@@ -16,12 +17,7 @@ func main() {
 	r.Use(auth.Verify)
 
 	//setup the api routes
-
-	//testing route
-	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("pong"))
-	})
+	r.HandleFunc("/api/login/new", api.NewLogin).Methods("POST")
 
 	//start the server
 	http.ListenAndServe(":3000", r)

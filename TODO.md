@@ -1,1 +1,2 @@
 - Implement a proper authentication method
+- Determine tennent securely via token / API key instead of who the client says they are
