@@ -4,6 +4,15 @@ An API that ingests, stores, and analyzes login data for tenants
 ## Installation
 [Setup Guide](Setup.MD)
 
+## Notes
+The requirements wanted the tenant to come from the request body for the POST but objective 4
+wants ach tenant to  only access their data. As
+a result I followed the request to have the request body specify the tenant, however
+to GET the data via /api/login/suspicious, it uses the API key to get the tenant...
+The current implementation is a 1:1 of api key -> tenant ID to simplify testing,
+in the real world it would be from a signed jwt token or the API key would
+map to the value another way.
+
 ## API Endpoints
 
 ### POST /api/login/new
