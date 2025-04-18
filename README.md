@@ -1,6 +1,9 @@
 # Insights
 An API that ingests, stores, and analyzes login data for tenants
 
+## Installation
+[Setup Guide](Setup.MD)
+
 ## API Endpoints
 
 ### POST /api/login/new
