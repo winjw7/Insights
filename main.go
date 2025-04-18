@@ -3,12 +3,19 @@ package main
 import (
 	"insights/api"
 	"insights/auth"
+	"insights/database"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 func main() {
+
+	// Set up the database
+	if err := database.Setup(); err != nil {
+		log.Fatalf("Failed to set up database: %v", err)
+	}
 
 	//Setup the api server
 	r := mux.NewRouter()
