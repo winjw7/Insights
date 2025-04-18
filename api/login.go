@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"insights/database"
 	"log"
+	"net"
 	"net/http"
 	"time"
 )
@@ -45,6 +46,12 @@ func NewLogin(w http.ResponseWriter, r *http.Request) {
 		event.Timestamp = time.Now()
 	}
 
+	// ensure the ip address valid
+	if net.ParseIP(event.Origin) == nil {
+		http.Error(w, "Invalid IP address", http.StatusBadRequest)
+		return
+	}
+
 	// Store the login event in the database
     db, err := database.Connect()
     if err != nil {
@@ -52,9 +59,30 @@ func NewLogin(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Database connection error", http.StatusInternalServerError)
         return
     }
+
     defer db.Close()
     
-    // Insert the login event
+	//The requirements want us to make sure the event is idempotent (don't store twice)
+    checkSQL := `
+        SELECT COUNT(1) FROM login_events
+        WHERE tenant = ? AND user = ? AND origin = ? AND status = ? AND timestamp = ?
+    `
+
+    var count int
+    err = db.QueryRow(checkSQL, event.Tenant, event.User, event.Origin, event.Status, event.Timestamp).Scan(&count)
+    if err != nil {
+        log.Printf("Failed to check for existing login event: %v", err)
+        http.Error(w, "Database query error", http.StatusInternalServerError)
+        return
+    }
+
+	//Event already exists just say ok and abort out
+    if count > 0 {
+        w.WriteHeader(http.StatusOK)
+        return
+    }
+
+    // Insert the login event otherwise
     insertSQL := `INSERT INTO login_events (tenant, user, origin, status, timestamp) VALUES (?, ?, ?, ?, ?)`
 	_, err = db.Exec(insertSQL, event.Tenant, event.User, event.Origin, event.Status, event.Timestamp)
     

@@ -18,6 +18,7 @@ Submit a login attempt
 ```
 
 #### Responses
+- `200 OK`: Login event already stored
 - `201 Created`: Login event successfully stored
 - `400 Bad Request`: Invalid payload or missing required fields
 - `500 Internal Server Error`: Server-side error
